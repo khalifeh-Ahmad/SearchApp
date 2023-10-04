@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Form from "react-bootstrap/Form";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -8,6 +8,13 @@ import axios from "axios";
 function App() {
   const [term, setTerm] = useState("react");
   const [list, setList] = useState([]);
+  const ref = useRef();
+  const prevTerm = ref.current;
+
+  useEffect(() => {
+    ref.current = term;
+  }, [term]);
+
   useEffect(() => {
     const searchAPI = async () => {
       const res = await axios.get("https://en.wikipedia.org/w/api.php", {
@@ -21,14 +28,24 @@ function App() {
       });
       setList(res.data.query.search);
     };
-    if (term) {
+
+    if (!list.length && term) {
       searchAPI();
+    } else if (prevTerm !== term) {
+      const debouncSrch = setTimeout(() => {
+        if (term) {
+          searchAPI();
+        }
+      }, 3000);
+      return () => {
+        clearTimeout(debouncSrch);
+      };
     }
-  }, [term]);
+  }, [term, list.length, prevTerm]);
 
   const showRes = list.map((dt, idx) => (
     <tr key={dt.pageid} style={{ border: "1px solid black" }}>
-      <td>{idx}</td>
+      <td>{idx}- </td>
       <td>{dt.title}</td>
       <td>
         <span dangerouslySetInnerHTML={{ __html: dt.snippet }} />
