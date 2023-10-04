@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+
+import PrevState from "./hooks/prevState";
 import Form from "react-bootstrap/Form";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -8,12 +10,7 @@ import axios from "axios";
 function App() {
   const [term, setTerm] = useState("react");
   const [list, setList] = useState([]);
-  const ref = useRef();
-  const prevTerm = ref.current;
-
-  useEffect(() => {
-    ref.current = term;
-  }, [term]);
+  const prevTerm = PrevState(term);
 
   useEffect(() => {
     const searchAPI = async () => {
